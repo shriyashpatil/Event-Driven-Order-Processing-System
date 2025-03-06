@@ -3,7 +3,9 @@ package com.event_driven.order_service.controller;
 import com.event_driven.order_service.dto.OrderRequestDto;
 import com.event_driven.order_service.dto.OrderResponseDto;
 import com.event_driven.order_service.exceptions.ProductNotFoundException;
+import com.event_driven.order_service.exceptions.ProductOutOfStockException;
 import com.event_driven.order_service.service.OrderService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -34,12 +36,11 @@ public class OrderController {
                     .message("successfully order created")
                     .build(), HttpStatus.OK);
 
-        }catch (ProductNotFoundException pne){
+        }catch (ProductNotFoundException | ProductOutOfStockException pne){
             return new ResponseEntity<>(OrderResponseDto.builder()
                     .message(pne.getMessage())
                     .build(), HttpStatus.BAD_REQUEST);
-        }
-        catch (Exception e){
+        } catch (Exception e){
             return new ResponseEntity<>(OrderResponseDto.builder()
                     .message(e.getMessage())
                     .build(), HttpStatus.INTERNAL_SERVER_ERROR);

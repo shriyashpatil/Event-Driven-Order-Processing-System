@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 public class ProductServiceImpl implements ProductService {
     @Override
     public boolean isProductAvailable(Long productId) {
-        return false;
+
+        // check if product is available
+
+        return true;
     }
 }
