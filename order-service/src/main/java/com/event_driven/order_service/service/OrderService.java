@@ -2,6 +2,7 @@ package com.event_driven.order_service.service;
 
 import com.event_driven.order_service.entity.Order;
 import com.event_driven.order_service.entity.OrderStatus;
+import com.event_driven.order_service.exceptions.OrderNotFoundException;
 import com.event_driven.order_service.exceptions.ProductNotFoundException;
 import com.event_driven.order_service.exceptions.ProductOutOfStockException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -18,5 +19,5 @@ public interface OrderService {
 
     List<Order> getOrders();
 
-    boolean updateOrderStatus(Long orderId, OrderStatus orderStatus);
+    void updateOrderStatus(Long orderId, OrderStatus orderStatus) throws OrderNotFoundException;
 }

@@ -3,6 +3,7 @@ package com.event_driven.order_service.service.impl;
 import com.event_driven.order_service.dto.OrderEvent;
 import com.event_driven.order_service.entity.Order;
 import com.event_driven.order_service.entity.OrderStatus;
+import com.event_driven.order_service.exceptions.OrderNotFoundException;
 import com.event_driven.order_service.exceptions.ProductNotFoundException;
 import com.event_driven.order_service.exceptions.ProductOutOfStockException;
 import com.event_driven.order_service.handler.KafkaProducerHandler;
@@ -12,7 +13,6 @@ import com.event_driven.order_service.service.OrderService;
 import com.event_driven.order_service.service.ProductService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -75,8 +75,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public boolean updateOrderStatus(Long orderId, OrderStatus orderStatus) {
-        return false;
+    public void updateOrderStatus(Long orderId, OrderStatus orderStatus) throws OrderNotFoundException {
+        Order order = orderRepository.findById(orderId).orElseThrow(()->new OrderNotFoundException("no order found by this Id : "+orderId));
+        order.setOrderStatus(orderStatus);
+        orderRepository.save(order);
     }
 
     @Async
