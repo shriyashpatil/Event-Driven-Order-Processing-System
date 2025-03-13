@@ -3,17 +3,17 @@ spring:
     name : order-service
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/order_management}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:root}
+    url: jdbc:postgresql://postgres:5432/order_management
+    username: postgres
+    password: SPRING_DATASOURCE_PASSWORD:root
 
   jpa:
     hibernate:
-      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:create}
+      ddl-auto: create
     show-sql: true
 
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    bootstrap-servers: kafka:9092
     consumer:
       group-id: ${KAFKA_GROUP_ID:order-service-group}
       auto-offset-reset: earliest

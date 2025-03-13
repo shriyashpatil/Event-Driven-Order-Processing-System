@@ -3,43 +3,57 @@ services:
 
   order-service:
     container_name: order-service
+    build:
+      context: ./order-service
     ports:
       - "8081:8080"
     restart: always
     networks: 
       - order-processing-system
     depends_on:
-      - postgres
-      - kafka
+      postgres :
+        condition: service_healthy
+      kafka :
+        condition: service_healthy
+
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/order_management
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=root
       - SPRING_JPA_HIBERNATE_DDL_AUTO=create
-      - KAFKA_BOOTSTRAP_SERVERS = kafka:9092
-      - KAFKA_GROUP_ID = inventory-service-group
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - KAFKA_GROUP_ID=inventory-service-group
+      - SPRING_PROFILES_ACTIVE=docker
 
-  inventory-service:
-    container_name: inventory-service
-    ports:
-      - "8082:8080"
-    restart: always
-    networks:
-      - order-processing-system
-    depends_on:
-      - postgres
-      - kafka
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/inventory_management
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=root
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=create
-      - KAFKA_BOOTSTRAP_SERVERS = kafka:9092
-      - KAFKA_GROUP_ID = inventory-service-group
+  # inventory-service:
+  #   container_name: inventory-service
+  #   build:
+  #     context: ./inventory-service
+  #   ports:
+  #     - "8082:8080"
+  #   restart: always
+  #   networks:
+  #     - order-processing-system
+  #   depends_on:
+  #     - postgres
+  #     - kafka
+  #   environment:
+  #     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/inventory_management
+  #     - SPRING_DATASOURCE_USERNAME=postgres
+  #     - SPRING_DATASOURCE_PASSWORD=root
+  #     - SPRING_JPA_HIBERNATE_DDL_AUTO=create
+  #     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+  #     - KAFKA_GROUP_ID=inventory-service-group
 
   postgres:
     image: postgres:latest
     container_name: postgres_db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      retries: 5
+    networks: 
+      - order-processing-system
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
@@ -51,15 +65,21 @@ services:
   kafka:
     image: bitnami/kafka:3.6
     container_name: kafka
+    networks: 
+      - order-processing-system
     ports:
       - 9092:9092
+    healthcheck:
+      test: ["CMD", "kafka-topics.sh", "--bootstrap-server", "localhost:9092", "--list"]
+      interval: 10s
+      retries: 5
     environment:
       - KAFKA_ENABLE_KRAFT=yes
       - KAFKA_CFG_PROCESS_ROLES=broker,controller
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
       - KAFKA_BROKER_ID=1
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
       - ALLOW_PLAINTEXT_LISTENER=yes
@@ -69,3 +89,8 @@ services:
 
 networks:
   order-processing-system:
+    driver : bridge
+
+volumes:
+  postgres_data:
+    driver: local
