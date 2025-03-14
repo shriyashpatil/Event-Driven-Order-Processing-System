@@ -1,26 +1,29 @@
 package com.event_driven.order_service.service.impl;
 
-import com.event_driven.order_service.dto.OrderEvent;
 import com.event_driven.order_service.entity.Order;
 import com.event_driven.order_service.entity.OrderStatus;
 import com.event_driven.order_service.exceptions.OrderNotFoundException;
 import com.event_driven.order_service.exceptions.ProductNotFoundException;
 import com.event_driven.order_service.exceptions.ProductOutOfStockException;
-import com.event_driven.order_service.handler.KafkaProducerHandler;
+import com.event_driven.order_service.helper.OrderAsyncHelper;
 import com.event_driven.order_service.repo.OrderRepository;
 import com.event_driven.order_service.service.InventoryService;
 import com.event_driven.order_service.service.OrderService;
 import com.event_driven.order_service.service.ProductService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+
 @Service
 public class OrderServiceImpl implements OrderService {
+
+    private static final Logger log = LoggerFactory.getLogger(OrderServiceImpl.class);
+
 
     @Autowired
     ProductService productService;
@@ -32,17 +35,17 @@ public class OrderServiceImpl implements OrderService {
     OrderRepository orderRepository;
 
     @Autowired
-    KafkaProducerHandler kafkaProducerHandler;
+    OrderAsyncHelper orderAsyncHelper;
+
+
 
 
     @Override
     public Long createOrder(Long customerId, Long productId, Integer quantity, Double price) throws ProductNotFoundException,JsonProcessingException,ProductOutOfStockException{
 
-        // check if product is present from product service
-        if(!productService.isProductAvailable(productId)) throw new ProductNotFoundException("Product not found: "+productId);
 
         //check if inventory is out of stock
-        if(!inventoryService.isInventoryAvailable(productId)) throw new ProductOutOfStockException("Product out of stock : "+productId);
+       // if(!inventoryService.isInventoryAvailable(productId)) throw new ProductOutOfStockException("Product out of stock : "+productId);
 
         // create order
         Order order = new Order();
@@ -57,7 +60,7 @@ public class OrderServiceImpl implements OrderService {
         order = orderRepository.save(order);
 
         // once order is created publish and event in the kafka
-        produceEvent(order);
+        orderAsyncHelper.produceOrderEvent(order);
 
         return order.getId();
     }
@@ -81,23 +84,6 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
     }
 
-    @Async
-    private void produceEvent(Order order) throws JsonProcessingException {
-
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        OrderEvent orderEvent = new OrderEvent();
-        orderEvent.setCustomerId(order.getCustomerId());
-        orderEvent.setProductId(order.getProductId());
-        orderEvent.setOrderId(order.getId());
-        orderEvent.setPrice(order.getPrice());
-        orderEvent.setQuantity(order.getQuantity());
-
-        String event = objectMapper.writeValueAsString(orderEvent);
-
-        kafkaProducerHandler.produce("order-event",event);
-
-    }
 
 
 }

@@ -24,3 +24,22 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringDeserializer
+
+  inventory :
+    service :
+      url : http://inventory-service:8080/api/v1/inventory
+
+  resilience4j:
+    retry:
+      instances:
+        inventoryCheck:
+          maxAttempts: 3
+          waitDuration: 2s
+
+  circuitbreaker:
+    instances:
+      inventoryCheck:
+        failureRateThreshold: 50
+        waitDurationInOpenState: 20s
+        permittedNumberOfCallsInHalfOpenState: 2
+        slidingWindowSize: 10

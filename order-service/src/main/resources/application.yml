@@ -13,9 +13,9 @@ spring:
     show-sql: true
 
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    bootstrap-servers: localhost:9092
     consumer:
-      group-id: ${KAFKA_GROUP_ID:order-service-group}
+      group-id: order-service-group
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -24,3 +24,32 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringDeserializer
+
+
+
+  resilience4j:
+    retry:
+      instances:
+        kafkaProducer:
+          maxAttempts: 3
+          waitDuration: 2s
+        inventoryCheck:
+          maxAttempts: 3
+          waitDuration: 2s
+
+  circuitbreaker:
+    instances:
+      kafkaProducer:
+        failureRateThreshold: 50
+        waitDurationInOpenState: 20s
+        permittedNumberOfCallsInHalfOpenState: 2
+        slidingWindowSize: 10
+      inventoryCheck:
+        failureRateThreshold: 50
+        waitDurationInOpenState: 20s
+        permittedNumberOfCallsInHalfOpenState: 2
+        slidingWindowSize: 10
+
+inventory:
+  service:
+    url: http://localhost:8082/api/v1/inventory
