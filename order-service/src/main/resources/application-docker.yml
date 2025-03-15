@@ -25,21 +25,42 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringDeserializer
 
-  inventory :
-    service :
-      url : http://inventory-service:8080/api/v1/inventory
+
 
   resilience4j:
     retry:
       instances:
+        kafkaProducer:
+          maxAttempts: 3
+          waitDuration: 2s
         inventoryCheck:
           maxAttempts: 3
           waitDuration: 2s
 
   circuitbreaker:
     instances:
+      kafkaProducer:
+        failureRateThreshold: 50
+        waitDurationInOpenState: 20s
+        permittedNumberOfCallsInHalfOpenState: 2
+        slidingWindowSize: 10
       inventoryCheck:
         failureRateThreshold: 50
         waitDurationInOpenState: 20s
         permittedNumberOfCallsInHalfOpenState: 2
         slidingWindowSize: 10
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
+
+  metrics:
+    export:
+      prometheus:
+        enables: true
+
+inventory:
+  service:
+    url: http://inventory-service:8080/api/v1/inventory
