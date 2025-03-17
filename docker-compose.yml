@@ -40,29 +40,34 @@ services:
       - KAFKA_GROUP_ID=inventory-service-group
       - SPRING_PROFILES_ACTIVE=docker
 
-  # inventory-service:
-  #   container_name: inventory-service
-  #   build:
-  #     context: ./inventory-service
-  #   ports:
-  #     - "8082:8080"
-  #   restart: always
-  #   networks:
-  #     - order-processing-system
-  #   depends_on:
-  #     - postgres
-  #     - kafka
-  #   environment:
-  #     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/inventory_management
-  #     - SPRING_DATASOURCE_USERNAME=postgres
-  #     - SPRING_DATASOURCE_PASSWORD=root
-  #     - SPRING_JPA_HIBERNATE_DDL_AUTO=create
-  #     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-  #     - KAFKA_GROUP_ID=inventory-service-group
+  inventory-service:
+    container_name: inventory-service
+    build:
+      context: ./inventory-service
+    ports:
+      - "8082:8080"
+    restart: always
+    networks:
+      - order-processing-system
+    depends_on:
+      - postgres
+      - kafka
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/inventory_management
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=create
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - KAFKA_GROUP_ID=inventory-service-group
+      - SPRING_PROFILES_ACTIVE=docker
+
 
   postgres:
     image: postgres:latest
     container_name: postgres_db
+    # written init script to create two data base while initialization
+    volumes:
+      - ./init-scripts:/docker-entrypoint-initdb.d   
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -75,6 +80,8 @@ services:
       POSTGRES_DB: order_management
     ports:
       - "5432:5432"
+
+
 
 
   kafka:
