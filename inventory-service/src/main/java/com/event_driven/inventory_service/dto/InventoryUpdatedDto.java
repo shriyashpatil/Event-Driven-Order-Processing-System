@@ -5,8 +5,10 @@ import lombok.Data;
 
 @Data
 @Builder
-public class ProductResponseDto {
+public class InventoryUpdatedDto {
+
     Long productId;
-    String message;
+    Long inventoryId;
+    Integer quantity;
 
 }

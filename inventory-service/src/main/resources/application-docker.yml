@@ -1,0 +1,56 @@
+spring:
+  application:
+    name : inventory-service
+
+  datasource:
+    url: jdbc:postgresql://postgres:5432/inventory_management
+    username: postgres
+    password: root
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+
+  kafka:
+    bootstrap-servers: kafka:9092
+    consumer:
+      group-id: inventory-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringDeserializer
+
+
+
+  resilience4j:
+    retry:
+      instances:
+        kafkaProducer:
+          maxAttempts: 3
+          waitDuration: 2s
+
+
+  circuitbreaker:
+    instances:
+      kafkaProducer:
+        failureRateThreshold: 50
+        waitDurationInOpenState: 20s
+        permittedNumberOfCallsInHalfOpenState: 2
+        slidingWindowSize: 10
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
+
+  metrics:
+    export:
+      prometheus:
+        enables: true
+

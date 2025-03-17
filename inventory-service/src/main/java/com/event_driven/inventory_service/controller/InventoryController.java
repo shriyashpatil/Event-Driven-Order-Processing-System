@@ -2,6 +2,7 @@ package com.event_driven.inventory_service.controller;
 
 import com.event_driven.inventory_service.dto.InventoryRequestDto;
 import com.event_driven.inventory_service.dto.InventoryResponseDto;
+import com.event_driven.inventory_service.dto.InventoryUpdatedDto;
 import com.event_driven.inventory_service.service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,7 +25,12 @@ public class InventoryController {
     @PutMapping
     public ResponseEntity<InventoryResponseDto> updateInventory(@RequestBody InventoryRequestDto inventoryRequestDto){
 
-        return null;
+        InventoryUpdatedDto inventoryUpdatedDto = inventoryService.updateInventory(inventoryRequestDto.getProductId(), inventoryRequestDto.getQuantity());
+
+        return new ResponseEntity<>(InventoryResponseDto.builder()
+                .data(inventoryUpdatedDto)
+                .message("success")
+                .build(), HttpStatus.OK);
     }
 
 

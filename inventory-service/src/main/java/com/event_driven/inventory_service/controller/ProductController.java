@@ -2,6 +2,9 @@ package com.event_driven.inventory_service.controller;
 
 import com.event_driven.inventory_service.dto.ProductRequestDto;
 import com.event_driven.inventory_service.dto.ProductResponseDto;
+import com.event_driven.inventory_service.service.ProductService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,10 +15,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/product")
 public class ProductController {
 
+    @Autowired
+    ProductService productService;
 
     @PostMapping
     public ResponseEntity<ProductResponseDto> addProduct(@RequestBody ProductRequestDto productRequestDto){
-        return null;
+        Long productId = productService.addProduct(productRequestDto.getName(), productRequestDto.getDetails(), productRequestDto.getPrice(), productRequestDto.getQuantity());
+        return new ResponseEntity<>(ProductResponseDto.builder()
+                .message("Success")
+                .productId(productId)
+                .build(), HttpStatus.OK);
     }
 
 }

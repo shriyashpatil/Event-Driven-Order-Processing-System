@@ -4,11 +4,14 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 @Component
-public class KafkaConsumerHandler {
+public class KafkaOrderEventConsumerHandler {
 
     @KafkaListener(topics = "order-event",groupId = "order-service-group")
     public void consumeOrder(String message){
         System.out.println(message);
     }
+
+
+
 
 }

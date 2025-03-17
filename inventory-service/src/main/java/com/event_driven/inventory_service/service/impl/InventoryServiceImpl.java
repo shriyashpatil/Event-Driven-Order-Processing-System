@@ -1,5 +1,6 @@
 package com.event_driven.inventory_service.service.impl;
 
+import com.event_driven.inventory_service.dto.InventoryUpdatedDto;
 import com.event_driven.inventory_service.entity.Inventory;
 import com.event_driven.inventory_service.repo.InventoryRepository;
 import com.event_driven.inventory_service.service.InventoryService;
@@ -19,5 +20,18 @@ public class InventoryServiceImpl implements InventoryService {
         /// get the productInventory
         Inventory inventory = inventoryRepository.findByProductId(productId).orElseThrow(()->new RuntimeException("No inventory found"));
         return inventory.getQuantity()>=quantity;
+    }
+
+    @Override
+    public InventoryUpdatedDto updateInventory(Long productId, Integer quantity) {
+        Inventory inventory = inventoryRepository.findByProductId(productId).orElseThrow(()->new RuntimeException("No inventory found"));
+        inventory.setQuantity(quantity);
+        inventory=inventoryRepository.save(inventory);
+
+        return InventoryUpdatedDto.builder()
+                .inventoryId(inventory.getId())
+                .productId(inventory.getProduct().getId())
+                .quantity(inventory.getQuantity())
+                .build();
     }
 }
