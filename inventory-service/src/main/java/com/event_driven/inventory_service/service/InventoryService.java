@@ -8,5 +8,11 @@ public interface InventoryService {
 
     public InventoryUpdatedDto updateInventory(Long productId,Integer quantity);
 
+    public void reservedInventory(Long productId,Long customerId,Long orderId,Integer quantity);
+
+    public void restoreInventory(Long productId,Long customerId,Long orderId);
+
+    public Integer getInventoryQuantity(Long productId);
+
 
 }

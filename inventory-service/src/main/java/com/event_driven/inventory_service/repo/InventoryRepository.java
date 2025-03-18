@@ -13,4 +13,7 @@ public interface InventoryRepository extends JpaRepository<Inventory,Long>{
     @Query(value = "select * from inventory where product_id=?1",nativeQuery = true)
     Optional<Inventory> findByProductId(Long productId);
 
+    @Query(value="select quantity from inventory where product_id=?1",nativeQuery = true)
+    Optional<Integer> getQuantity(Long productId);
+
 }

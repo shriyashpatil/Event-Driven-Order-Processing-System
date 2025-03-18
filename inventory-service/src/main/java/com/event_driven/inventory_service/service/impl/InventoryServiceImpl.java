@@ -34,4 +34,21 @@ public class InventoryServiceImpl implements InventoryService {
                 .quantity(inventory.getQuantity())
                 .build();
     }
+
+    @Override
+    public void reservedInventory(Long productId,Long customerId,Long orderId,Integer quantity) {
+
+    }
+
+    @Override
+    public void restoreInventory(Long productId,Long customerId,Long orderId) {
+
+    }
+
+    @Override
+    public Integer getInventoryQuantity(Long productId) {
+        return inventoryRepository.getQuantity(productId).orElseThrow(()->new RuntimeException("Product not found"));
+    }
+
+
 }

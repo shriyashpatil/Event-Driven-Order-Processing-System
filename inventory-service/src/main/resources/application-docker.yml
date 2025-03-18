@@ -25,7 +25,9 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringDeserializer
 
-
+  redis:
+    host: redis
+    port: 6379
 
   resilience4j:
     retry:
