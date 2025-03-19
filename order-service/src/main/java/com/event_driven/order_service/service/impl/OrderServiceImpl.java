@@ -45,7 +45,7 @@ public class OrderServiceImpl implements OrderService {
 
 
         //check if inventory is out of stock
-       // if(!inventoryService.isInventoryAvailable(productId)) throw new ProductOutOfStockException("Product out of stock : "+productId);
+       if(!inventoryService.isInventoryAvailable(productId,quantity)) throw new ProductOutOfStockException("Product out of stock : "+productId);
 
         // create order
         Order order = new Order();

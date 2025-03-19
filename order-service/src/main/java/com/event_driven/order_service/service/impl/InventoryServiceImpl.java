@@ -26,13 +26,12 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     @Retry(name = INVENTORY_CHECK)
     @CircuitBreaker(name = INVENTORY_CHECK,fallbackMethod = "handleInventoryFallback")
-    public boolean isInventoryAvailable(Long productId) throws ProductNotFoundException {
+    public boolean isInventoryAvailable(Long productId,Integer quantity) throws ProductNotFoundException {
         try {
             log.debug("Inventory check api for productId {}",productId);
-            ApiResponse apiResponse = inventoryServiceClient.checkInventoryAvailable(productId);
+            ApiResponse apiResponse = inventoryServiceClient.checkInventoryAvailable(productId,quantity);
             Object data = apiResponse.getData();
-            HashMap<String, String> hm = (HashMap<String, String>) data;
-            boolean status  =hm.get("status").equalsIgnoreCase("true");
+            Boolean status =  (Boolean) data;
             log.info("Inventory check result for productId {}:{}",productId,status);
             return status;
         }catch(Exception e){

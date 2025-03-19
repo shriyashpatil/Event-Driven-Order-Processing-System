@@ -56,3 +56,7 @@ management:
       prometheus:
         enables: true
 
+server:
+  port : 8082
+  servlet:
+    context-path: /api

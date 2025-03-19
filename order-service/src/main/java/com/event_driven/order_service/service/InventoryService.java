@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 public interface InventoryService {
 
-    public boolean isInventoryAvailable(Long productId) throws ProductNotFoundException;
+    public boolean isInventoryAvailable(Long productId,Integer quantity) throws ProductNotFoundException;
 
     public void updateInventory(Long productId,Integer quantity);
 

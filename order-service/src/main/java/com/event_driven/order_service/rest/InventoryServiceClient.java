@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name="inventory-service",url = "${inventory.service.url}")
 public interface InventoryServiceClient {
 
-    @GetMapping("/check/{productId}")
-    ApiResponse checkInventoryAvailable(@PathVariable("productId") Long id);
+    @GetMapping("/check/{productId}/{quantity}")
+    ApiResponse checkInventoryAvailable(@PathVariable("productId") Long id,@PathVariable("quantity") Integer quantity);
 
 
 }

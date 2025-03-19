@@ -16,10 +16,10 @@ public class KafkaConsumerHandler {
     @Autowired
     PaymentConsumerHandler paymentConsumerHandler;
 
-    @KafkaListener(topics = "order-event",groupId = "order-service-group")
-    public void consume(String message){
-        System.out.println("consume"+message);
-    }
+//    @KafkaListener(topics = "order-event",groupId = "order-service-group")
+//    public void consume(String message){
+//        System.out.println("consume"+message);
+//    }
 
 
     public void paymentStatusConsumer(String message){

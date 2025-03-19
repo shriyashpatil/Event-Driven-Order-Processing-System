@@ -1,5 +1,6 @@
 package com.event_driven.inventory_service.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -14,6 +15,6 @@ public class Product extends Base{
     private String name;
     private Double price;
     private String details;
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private Inventory inventory;
 }
